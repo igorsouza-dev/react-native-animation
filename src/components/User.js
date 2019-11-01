@@ -1,10 +1,11 @@
-import React, {Component} from 'react';
+import React, {useState, useEffect} from 'react';
 
 import {
   View,
   Text,
   Image,
   Alert,
+  Animated,
   StyleSheet,
   Dimensions,
   TouchableWithoutFeedback,
@@ -12,12 +13,28 @@ import {
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-export default class User extends Component {
-  render() {
-    const {user} = this.props;
+export default function User({onPress, user}) {
+  const [opacity, setOpacity] = useState(new Animated.Value(0));
+  const [offset, setOffset] = useState(new Animated.ValueXY({x: 0, y: 50}));
 
-    return (
-      <TouchableWithoutFeedback onPress={this.props.onPress}>
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(offset.y, {
+        toValue: 0,
+        speed: 5,
+        bounciness: 20,
+      }),
+      Animated.timing(opacity, {
+        duration: 500,
+        toValue: 1,
+      }),
+    ]).start();
+  }, []); //eslint-disable-line
+
+  return (
+    <Animated.View
+      style={[{opacity}, {transform: [...offset.getTranslateTransform()]}]}>
+      <TouchableWithoutFeedback onPress={onPress}>
         <View style={styles.userContainer}>
           <Image style={styles.thumbnail} source={{uri: user.thumbnail}} />
 
@@ -33,8 +50,8 @@ export default class User extends Component {
           </View>
         </View>
       </TouchableWithoutFeedback>
-    );
-  }
+    </Animated.View>
+  );
 }
 
 const styles = StyleSheet.create({
