@@ -1,79 +1,136 @@
-import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, Animated} from 'react-native';
+import React, {useState} from 'react';
+
+import {
+  View,
+  Image,
+  Text,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  Dimensions,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+
+import User from './components/User';
+
+const {width} = Dimensions.get('window');
+
+const usersArray = [
+  {
+    id: 1,
+    name: 'Diego Fernandes',
+    description: 'Head de programação!',
+    avatar: 'https://avatars0.githubusercontent.com/u/2254731?s=460&v=4',
+    thumbnail:
+      'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=400&q=80',
+    likes: 200,
+    color: '#57BCBC',
+  },
+  {
+    id: 2,
+    name: 'Robson Marques',
+    description: 'Head de empreendedorismo!',
+    avatar: 'https://avatars2.githubusercontent.com/u/861751?s=460&v=4',
+    thumbnail:
+      'https://images.unsplash.com/photo-1490633874781-1c63cc424610?auto=format&fit=crop&w=400&q=80',
+    likes: 350,
+    color: '#E75A63',
+  },
+  {
+    id: 3,
+    name: 'Cleiton Souza',
+    description: 'Head de mindset!',
+    avatar: 'https://avatars0.githubusercontent.com/u/4669899?s=460&v=4',
+    thumbnail:
+      'https://images.unsplash.com/photo-1506440905961-0ab11f2ed5bc?auto=format&fit=crop&w=400&q=80',
+    likes: 250,
+    color: '#2E93E5',
+  },
+  {
+    id: 4,
+    name: 'Robson Marques',
+    description: 'Head de empreendedorismo!',
+    avatar: 'https://avatars2.githubusercontent.com/u/861751?s=460&v=4',
+    thumbnail:
+      'https://images.unsplash.com/photo-1490633874781-1c63cc424610?auto=format&fit=crop&w=400&q=80',
+    likes: 350,
+    color: '#E75A63',
+  },
+];
+
+export default function App() {
+  const [users, setUsers] = useState(usersArray);
+  const [userSelected, setUserSelected] = useState(null);
+  const [userInfoVisible, setUserInfoVisible] = useState(false);
+
+  function selectUser(user) {
+    setUserSelected(user);
+    setUserInfoVisible(true);
+  }
+
+  function renderDetail() {
+    return (
+      <View>
+        <User user={userSelected} onPress={() => {}} />
+      </View>
+    );
+  }
+
+  function renderList() {
+    return (
+      <View style={styles.container}>
+        <ScrollView>
+          {users.map(user => (
+            <User key={user.id} user={user} onPress={() => selectUser(user)} />
+          ))}
+        </ScrollView>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+
+      <View style={styles.header}>
+        <Image
+          style={styles.headerImage}
+          source={userSelected ? {uri: userSelected.thumbnail} : null}
+        />
+
+        <Text style={styles.headerText}>
+          {userSelected ? userSelected.name : 'GoNative'}
+        </Text>
+      </View>
+      {userInfoVisible ? renderDetail() : renderList()}
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  ball: {
-    backgroundColor: '#f00',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    margin: 30,
+
+  header: {
+    paddingTop: Platform.OS === 'ios' ? 40 : 20,
+    paddingHorizontal: 15,
+    backgroundColor: '#2E93E5',
+    height: 200,
   },
-  ball2: {
-    backgroundColor: '#03f',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    margin: 30,
+
+  headerImage: {
+    ...StyleSheet.absoluteFillObject,
   },
-  ball3: {
-    backgroundColor: '#862',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    margin: 30,
+
+  headerText: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: '#FFF',
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    left: 15,
+    bottom: 20,
   },
 });
-
-export default function App() {
-  const [ballY, setBallY] = useState(new Animated.Value(0));
-  const [ballY2, setBallY2] = useState(new Animated.Value(0));
-  const [ballY3, setBallY3] = useState(new Animated.Value(0));
-  const [ballX, setBallX] = useState(new Animated.Value(0));
-
-  useEffect(() => {
-    Animated.timing(ballY, {
-      toValue: 500,
-      timing: 1000,
-    }).start();
-    Animated.spring(ballY2, {
-      toValue: 300,
-      bounciness: 20,
-    }).start();
-    Animated.decay(ballY3, {
-      velocity: 0.5,
-    }).start();
-  }, []); // eslint-disable-line
-
-  return (
-    <View style={styles.container}>
-      <Animated.View
-        style={[
-          styles.ball,
-          {
-            top: ballY,
-          },
-        ]}
-      />
-      <Animated.View
-        style={[
-          styles.ball2,
-          {
-            top: ballY2,
-          },
-        ]}
-      />
-      <Animated.View
-        style={[
-          styles.ball3,
-          {
-            top: ballY3,
-          },
-        ]}
-      />
-    </View>
-  );
-}
