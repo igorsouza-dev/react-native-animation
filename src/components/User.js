@@ -8,15 +8,42 @@ import {
   Animated,
   StyleSheet,
   Dimensions,
+  PanResponder,
   TouchableWithoutFeedback,
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 
+const {width} = Dimensions.get('window');
+
 export default function User({onPress, user}) {
   const [opacity, setOpacity] = useState(new Animated.Value(0));
   const [offset, setOffset] = useState(new Animated.ValueXY({x: 0, y: 50}));
-
+  const panResponder = PanResponder.create({
+    onPanResponderTerminationRequest: () => false,
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderMove: Animated.event([
+      null,
+      {
+        dx: offset.x,
+      },
+    ]),
+    onPanResponderRelease: () => {
+      if (offset.x._value > 180) {
+        Alert.alert('Deleted!');
+      }
+      Animated.spring(offset.x, {
+        toValue: 0,
+        bounciness: 10,
+      }).start();
+    },
+    onPanResponderTerminate: () => {
+      Animated.spring(offset.x, {
+        toValue: 0,
+        bounciness: 10,
+      }).start();
+    },
+  });
   useEffect(() => {
     Animated.parallel([
       Animated.spring(offset.y, {
@@ -33,7 +60,21 @@ export default function User({onPress, user}) {
 
   return (
     <Animated.View
-      style={[{opacity}, {transform: [...offset.getTranslateTransform()]}]}>
+      {...panResponder.panHandlers}
+      style={[
+        {opacity},
+        {
+          transform: [
+            ...offset.getTranslateTransform(),
+            {
+              rotateZ: offset.x.interpolate({
+                inputRange: [width * -1, width],
+                outputRange: ['-50deg', '50deg'],
+              }),
+            },
+          ],
+        },
+      ]}>
       <TouchableWithoutFeedback onPress={onPress}>
         <View style={styles.userContainer}>
           <Image style={styles.thumbnail} source={{uri: user.thumbnail}} />
